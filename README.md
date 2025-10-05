@@ -1,6 +1,6 @@
 # 💊🕒 Medicine Reminder & Management System  
 
-> 🧠 A smart web-based application built with **Node.js**, **Express**, **MongoDB**, and **EJS** that helps users **track their medicines**, **schedule reminders**, and receive **email notifications** automatically
+> 🧠 A smart web-based application built with **Node.js**, **Express**, **MongoDB**, and **EJS** that helps users **track their medicines**, **schedule reminders**, and receive **email notifications** automatically.
 
 ---
 
