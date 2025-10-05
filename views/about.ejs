@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'About | Medicine Reminder' %></title>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
+
+      :root {
+        --bg: #0b1220;
+        --bg-overlay: rgba(4, 9, 30, 0.60);
+        --card: rgba(255, 255, 255, 0.12);
+        --card-solid: #ffffff;
+        --text: #ffffff;
+        --text-dark: #0f172a;
+        --muted: #c7d2fe;
+        --border: rgba(255, 255, 255, 0.22);
+        --border-solid: #e5e7eb;
+        --primary: #2563eb;
+        --primary-2: #22d3ee;
+        --success: #16a34a;
+        --danger: #ef4444;
+        --shadow: 0 12px 30px rgba(2, 6, 23, 0.25);
+        --radius: 14px;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: "Roboto", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+        font-size: 0.95rem;
+        color: var(--text);
+        min-height: 100vh;
+        background:
+          linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+          url(https://i.pinimg.com/originals/9f/f7/d1/9ff7d1a690e7bf508eda106f9bc13dab.jpg) center/cover no-repeat fixed;
+      }
+
+      a { color: inherit; text-decoration: none; }
+      .container { width: 92%; max-width: 1200px; margin: 0 auto; }
+
+      /* Only expand the content container, not the navbar container */
+      .page-container .container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding-left: 4vw;
+        padding-right: 4vw;
+      }
+
+      /* Navbar (shared) - unchanged */
+      .navbar {
+        position: relative;
+        background: linear-gradient(135deg, rgba(99,102,241,.85), rgba(34,211,238,.85));
+        padding: 0.8rem 0;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 6px 20px rgba(2, 6, 23, 0.25);
+        z-index: 10;
+      }
+      .navbar > .container { display: flex; align-items: center; gap: 16px; }
+      .navbar-header { display: flex; align-items: center; gap: 12px; }
+      .navbar-logo { display: flex; align-items: center; gap: 8px; }
+      .navbar-logo img { height: 40px; border-radius: 8px; }
+
+      .navbar-menu { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+      .navbar-toggler { cursor: pointer; border: none; display: none; outline: none; background: none; }
+      .navbar-toggler span { height: 2px; width: 22px; background-color: #ffffff; display: block; }
+      .navbar-toggler span:not(:last-child) { margin-bottom: 0.3rem; }
+
+      .navbar-nav { display: flex; list-style: none; padding-left: 0; margin: 0; }
+      .navbar-nav > li > a {
+        color: #ffffff;
+        font-weight: 500;
+        display: inline-block;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+      .navbar-nav > li > a:hover { background-color: rgba(255,255,255,0.2); color: #fff; }
+
+      /* User menu */
+      .user-menu-wrap { position: relative; display: flex; align-items: center; margin-left: 8px; }
+      #userIcon { font-size: 34px; color: #ffffff; cursor: pointer; transition: transform .15s ease, opacity .2s ease; }
+      #userIcon:hover { transform: translateY(-1px); opacity: .95; }
+      #userMenu {
+        position: absolute; top: calc(100% + 10px); right: 0; display: none;
+        min-width: 180px; background: var(--card-solid); color: var(--text-dark);
+        border: 1px solid var(--border-solid); border-radius: 10px; box-shadow: var(--shadow);
+        padding: 6px; z-index: 1000;
+      }
+      #userMenu.visible { display: block; animation: menuIn .18s ease-out; }
+      #userMenu::before {
+        content: ""; position: absolute; top: -7px; right: 16px; width: 12px; height: 12px; transform: rotate(45deg);
+        background: var(--card-solid); border-left: 1px solid var(--border-solid); border-top: 1px solid var(--border-solid);
+      }
+      #userMenu a { display: block; padding: 8px 10px; border-radius: 8px; color: var(--text-dark); }
+      #userMenu a:hover { background: #f3f4f6; color: var(--primary); }
+      @keyframes menuIn { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+      /* Page container */
+      .page-container { padding: 40px 0 60px; }
+
+      /* Flatten the card wrapper so content sits directly on the background */
+      .add-card {
+        width: 100%;
+        max-width: none;
+        margin: 24px 0 0;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        backdrop-filter: none;
+        overflow: visible;
+      }
+      .add-card .header {
+        padding: 20px 0 12px;
+        background: transparent;
+        border-bottom: none;
+      }
+      .add-card .header h1 { font-size: 32px; font-weight: 700; color: #e5edff; margin: 0; }
+      .add-card .header p { color: var(--muted); margin: 6px 0 0 0; line-height: 1.6; font-size: 16px; }
+      .add-card .body {
+        padding: 0;
+        background: transparent;
+      }
+
+      /* About content layout */
+      .about-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 14px;
+      }
+
+      /* Remove inner card look */
+      .card {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+      }
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 17px;
+        font-weight: 800;
+        color: #eaf2ff;
+        letter-spacing: .3px;
+      }
+      .card p {
+        margin: 0 0 8px;
+        color: #dbeafe;
+        line-height: 1.7;
+        font-size: 16px;
+      }
+
+      .about-hero {
+        display: grid;
+        gap: 10px;
+      }
+      .about-hero .tag {
+        display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
+        border: 1px solid var(--border); border-radius: 999px; color: #eaf2ff; width: max-content;
+        background: rgba(255,255,255,0.06); font-size: 12px; font-weight: 700; letter-spacing: .3px;
+      }
+      .about-hero h2 {
+        margin: 4px 0 6px; font-size: clamp(22px, 2.4vw, 28px); font-weight: 800; color: #eaf2ff;
+      }
+      .about-hero .lead { color: #c7d2fe; }
+
+      .about-image { display: grid; gap: 10px; }
+      .about-image img {
+        width: 100%; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+        object-fit: cover; max-height: 360px;
+      }
+
+      /* Values list flattened (no cards) */
+      .values-grid {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .value {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        display: grid; gap: 6px;
+      }
+      .value i { color: #a5b4fc; }
+      .value h4 { margin: 0; color: #eaf2ff; font-size: 16px; }
+      .value p { margin: 0; color: #dbeafe; font-size: 13px; line-height: 1.6; }
+
+      .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer;
+        border-radius: 10px; padding: 12px 16px; font-weight: 700; text-decoration: none;
+        transition: transform .12s ease, box-shadow .2s ease, background .2s ease, filter .2s ease;
+      }
+      .btn:active { transform: translateY(0); }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.15); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25);
+      }
+
+      /* Footer (shared) */
+      .footer-distributed {
+        background: linear-gradient(45deg, #83a4d4, #b6fbff);
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
+        width: 100%;
+        text-align: left;
+        font: bold 16px 'Open Sans', sans-serif;
+        padding: 40px 24px;
+        margin-top: 50px;
+        color: #111827;
+      }
+      .footer-distributed .footer-left, .footer-distributed .footer-center, .footer-distributed .footer-right {
+        display: inline-block; vertical-align: top;
+      }
+      .footer-distributed .footer-left { width: 40%; }
+      .footer-distributed h3 { color: #111827; font: normal 28px 'Open Sans', cursive; margin: 0 0 8px 0; }
+      .footer-distributed .footer-links { margin: 18px 0 10px; padding: 0; }
+      .footer-distributed .footer-links a { display: inline-block; line-height: 1.8; font-weight: 500; color: #111827; margin-right: 10px; }
+      .footer-distributed .footer-company-name { color: #1f2937; font-size: 14px; font-weight: normal; margin: 8px 0 0; }
+      .footer-distributed .footer-center { width: 35%; }
+      .footer-distributed .footer-center i {
+        background-color: #33383b; color: #ffffff; font-size: 18px; width: 34px; height: 34px; border-radius: 50%;
+        text-align: center; line-height: 34px; margin: 6px 10px 6px 0; vertical-align: middle;
+      }
+      .footer-distributed .footer-center p { display: inline-block; color: #111827; font-weight: 500; vertical-align: middle; margin: 0; }
+      .footer-distributed .footer-center p span { display: block; font-weight: normal; font-size: 14px; line-height: 1.7; color: #374151; }
+      .footer-distributed .footer-center p a { color: #0ea5e9; }
+      .footer-distributed .footer-right { width: 20%; }
+      .footer-distributed .footer-company-about { line-height: 20px; color: #374151; font-size: 14px; font-weight: normal; margin: 0; }
+      .footer-distributed .footer-company-about span { display: block; color: #111827; font-size: 16px; font-weight: bold; margin-bottom: 12px; }
+      .footer-distributed .footer-icons { margin-top: 16px; }
+      .footer-distributed .footer-icons a {
+        display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px;
+        background-color: #1f2937; border-radius: 8px; font-size: 16px; color: #ffffff; margin-right: 6px;
+      }
+
+      /* Responsive */
+      @media (max-width: 980px) {
+        .about-grid { grid-template-columns: 1fr; }
+        .values-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 768px) {
+        .navbar-toggler { display: block; }
+        .navbar-menu {
+          display: none; flex-direction: column; align-items: flex-start; gap: 8px; width: 100%;
+        }
+        .navbar-menu.active {
+          display: flex !important; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px;
+        }
+        .navbar-nav { width: 100%; flex-direction: column; gap: 6px; }
+        .navbar-nav > li > a { width: 100%; }
+        .add-card .header h1 { font-size: 22px; }
+      }
+      @media (max-width: 640px) {
+        .values-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 880px) {
+        .footer-distributed .footer-left, .footer-distributed .footer-center, .footer-distributed .footer-right {
+          display: block; width: 100%; margin-bottom: 24px; text-align: left;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar (unchanged) -->
+    <nav class="navbar">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-logo">
+            <img src="https://cdn.pixabay.com/photo/2015/12/15/23/32/universal-health-care-1095124_640.png" alt="logo">
+            <img src="https://ik.imagekit.io/77nsbwefl/download.png?updatedAt=1755196133135" alt="logo">
+          </a>
+          <button class="navbar-toggler" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+
+        <div class="navbar-menu" id="open-navbar1">
+          <ul class="navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/add_medicine">Medicine</a></li>
+            <li><a href="/show_details">Show Details</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+
+          <div class="user-menu-wrap">
+            <i id="userIcon" class="fas fa-user-circle" aria-hidden="true" aria-haspopup="true" aria-expanded="false"></i>
+            <div id="userMenu" role="menu" aria-label="User menu">
+              <% if (typeof loggedIn !== 'undefined' && loggedIn) { %>
+                <a href="/dashboard"><i class="fa fa-home"></i> Dashboard</a>
+                <a href="/profile"><i class="fa fa-gear"></i> Profile</a>
+                <a href="/logout"><i class="fa fa-right-from-bracket"></i> Logout</a>
+              <% } else { %>
+                <a href="/sign_in"><i class="fa fa-sign-in" aria-hidden="true"></i> Sign in</a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page -->
+    <main class="page-container">
+      <section class="add-card container">
+        <div class="header">
+          <h1>About Medmindr</h1>
+          <p>Where clean design meets powerful functionality. We build simple, reliable tools that help you stay on track with your <br>wellness.</p>
+        </div>
+
+        <div class="body">
+          <div class="about-grid">
+            <!-- Left: narrative -->
+            <div class="card about-hero">
+              <span class="tag"><i class="fa-solid fa-heart-pulse"></i> Our Mission</span>
+              <h2>Innovation, Integrity, Impact</h2>
+              <p class="lead">
+                We are passionate about building innovative, user-friendly, and reliable solutions that make life simpler.
+                Our mission is to combine clean design with powerful functionality, creating experiences that leave a lasting impression.
+              </p>
+              <p>
+                With a commitment to quality and attention to detail, we ensure every project reflects our values.
+                Whether it’s crafting stunning interfaces, developing seamless applications, or delivering tailored solutions,
+                we put our heart into every step.
+              </p>
+
+              <div class="values-grid">
+                <div class="value">
+                  <i class="fa-solid fa-lightbulb"></i>
+                  <h4>Innovation</h4>
+                  <p>Always improving the experience and reliability of reminders.</p>
+                </div>
+                <div class="value">
+                  <i class="fa-solid fa-shield-heart"></i>
+                  <h4>Integrity</h4>
+                  <p>Privacy-first design with transparent, predictable behavior.</p>
+                </div>
+                <div class="value">
+                  <i class="fa-solid fa-people-group"></i>
+                  <h4>Impact</h4>
+                  <p>Helping you stay consistent with your medication—every day.</p>
+                </div>
+              </div>
+
+              <div class="actions">
+                <a href="/add_medicine" class="btn btn-primary"><i class="fa-solid fa-pills"></i> Get Started</a>
+                <a href="/" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back Home</a>
+              </div>
+            </div>
+
+            <!-- Right: image/info -->
+            <aside class="card about-image">
+              <img src="https://topflightapps.com/wp-content/uploads/2022/02/pill_reminder_medical.png" alt="About Medmindr">
+              <div style="display:grid; gap:6px; color:#dbeafe;">
+                <div><i class="fa-solid fa-location-dot"></i> GCE Ramanagaram, South Bengaluru, 562159</div>
+                <div><i class="fa-solid fa-envelope"></i> support@company.com</div>
+                <div><i class="fa-solid fa-clock"></i> Mon–Fri: 9:00–18:00</div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </main>
+
+   <!-- Footer -->
+    <footer class="footer-distributed">
+      <div class="footer-left">
+        <a href="/" class="navbar-logo" aria-label="Home">
+          <img src="https://cdn.pixabay.com/photo/2015/12/15/23/32/universal-health-care-1095124_640.png" alt="logo">
+          <img src="https://ik.imagekit.io/77nsbwefl/download.png?updatedAt=1755196133135" alt="logo">
+        </a>
+        <p class="footer-links">
+          <a href="/" class="link-1">Home</a>
+          <a href="/add_medicine">Medicine</a>
+          <a href="/show_details">Show Details</a>
+          <a href="/about">About</a>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/contact">Contact</a>
+        </p>
+        <p class="footer-company-name" style="width: auto; color:#0d0204; font-size: 20px; font:bold; font-style:italic; ">TechFlies</p>
+      </div>
+
+      <div class="footer-center">
+        <div>
+          <i class="fa fa-map-marker"></i>
+          <p><span>P7MV+F9G, B.M Road,</span> Ghousia College of Engineering,<br> Ramanagara, Karnataka 562159</p>
+        </div>
+        <div>
+          <i class="fa fa-phone"></i>
+          <p>+91-8446548235</p>
+        </div>
+        <div>
+          <i class="fa fa-envelope"></i>
+          <p><a href="medicinereminder04@gmail.com">medicinereminder04@gmail.com</a></p>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <p class="footer-company-about">
+          <span>About the company</span>
+          Tools that help you stay on track with your health—simply and beautifully.
+        </p>
+        <div class="footer-icons">
+          <a href="#"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+          <a href="#"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+          <a href="#"><i class="fab fa-github" aria-hidden="true"></i></a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Navbar toggler
+      document.querySelectorAll(".navbar-toggler").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelector(".navbar-menu").classList.toggle("active");
+        });
+      });
+
+      // User menu
+      const userIcon = document.getElementById('userIcon');
+      const userMenu = document.getElementById('userMenu');
+      if (userIcon && userMenu) {
+        userIcon.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const open = !userMenu.classList.contains('visible');
+          userMenu.classList.toggle('visible', open);
+          userIcon.setAttribute('aria-expanded', String(open));
+        });
+        document.addEventListener('click', (e) => {
+          if (!userMenu.contains(e.target)) {
+            userMenu.classList.remove('visible');
+            userIcon.setAttribute('aria-expanded', 'false');
+          }
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            userMenu.classList.remove('visible');
+            userIcon.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+    </script>
+  </body>
+  </html>

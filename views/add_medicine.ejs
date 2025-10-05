@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+        <%= typeof pageTitle !=='undefined' ? pageTitle : 'Medicine Reminder' %>
+    </title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap");
+        @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,500,300,700);
+
+        :root {
+            --bg: #0b1220;
+            --bg-overlay: rgba(4, 9, 30, 0.60);
+            --card: rgba(255, 255, 255, 0.12);
+            --card-solid: #ffffff;
+            --text: #ffffff;
+            --text-dark: #0f172a;
+            --muted: #c7d2fe;
+            --border: rgba(255, 255, 255, 0.22);
+            --border-solid: #e5e7eb;
+            --primary: #2563eb;
+            --primary-2: #22d3ee;
+            --success: #16a34a;
+            --danger: #ef4444;
+            --shadow: 0 12px 30px rgba(2, 6, 23, 0.25);
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            font-family: "Roboto", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+        }
+
+        body {
+            font-size: 0.95rem;
+            color: var(--text);
+            min-height: 100vh;
+            background:
+                linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+                url(https://i.pinimg.com/originals/9f/f7/d1/9ff7d1a690e7bf508eda106f9bc13dab.jpg) center/cover no-repeat fixed;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Container utility */
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: relative;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.85), rgba(34, 211, 238, 0.85));
+            padding: 0.8rem 0;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 20px rgba(2, 6, 23, 0.25);
+        }
+
+        .navbar>.container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .navbar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-logo img {
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .navbar-menu {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-toggler {
+            cursor: pointer;
+            border: none;
+            display: none;
+            outline: none;
+            background: none;
+        }
+
+        .navbar-toggler span {
+            height: 2px;
+            width: 22px;
+            background-color: #ffffff;
+            display: block;
+        }
+
+        .navbar-toggler span:not(:last-child) {
+            margin-bottom: 0.3rem;
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .navbar-nav>li>a {
+            color: #ffffff;
+            font-weight: 500;
+            display: inline-block;
+            padding: 0.45rem 0.8rem;
+            border-radius: 999px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .navbar-nav>li>a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        /* User menu */
+        .user-menu-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-left: 8px;
+        }
+
+        #userIcon {
+            font-size: 34px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+        }
+
+        #userIcon:hover {
+            transform: translateY(-1px);
+            opacity: 0.95;
+        }
+
+        #userMenu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            display: none;
+            min-width: 180px;
+            background: var(--card-solid);
+            color: var(--text-dark);
+            border: 1px solid var(--border-solid);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 6px;
+            z-index: 1000;
+        }
+
+        #userMenu.visible {
+            display: block;
+            animation: menuIn 0.18s ease-out;
+        }
+
+        #userMenu::before {
+            content: "";
+            position: absolute;
+            top: -7px;
+            right: 16px;
+            width: 12px;
+            height: 12px;
+            transform: rotate(45deg);
+            background: var(--card-solid);
+            border-left: 1px solid var(--border-solid);
+            border-top: 1px solid var(--border-solid);
+        }
+
+        #userMenu p {
+            margin: 0;
+        }
+
+        #userMenu a {
+            display: block;
+            padding: 8px 10px;
+            border-radius: 8px;
+            color: var(--text-dark);
+        }
+
+        #userMenu a:hover {
+            background: #f3f4f6;
+            color: var(--primary);
+        }
+
+        @keyframes menuIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Page container */
+        .page-container {
+            padding: 40px 0 60px;
+        }
+
+        /* Add Medicine Card */
+        .add-card {
+            max-width: 920px;
+            margin: 24px auto 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .add-card .header {
+            padding: 20px 22px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(34, 211, 238, 0.2));
+            border-bottom: 1px solid var(--border);
+        }
+
+        .add-card .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #e5edff;
+            margin: 0;
+        }
+
+        .add-card .header p {
+            color: var(--muted);
+            margin: 6px 0 0 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .add-card .body {
+            padding: 22px;
+            background: rgba(2, 6, 23, 0.25);
+        }
+
+        /* Form styles */
+        form {
+            color: #eaf2ff;
+        }
+
+        .inline-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin: 8px 0 6px;
+            color: #eaf2ff;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="datetime-local"],
+        select {
+            width: 100%;
+            padding: 12px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(34, 211, 238, 0.8);
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.15);
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-weight: 600;
+            transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            color: white;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.05);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            color: white;
+            box-shadow: 0 10px 24px rgba(239, 68, 68, 0.35);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        /* Medicine cards */
+        #medicine_forms {
+            display: grid;
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .medicine-card {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .medicine-card .mc-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            background: rgba(99, 102, 241, 0.18);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .medicine-card .mc-head h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #eaf2ff;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .medicine-card .mc-body {
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+
+        /* Field spans for layout */
+        .span-2 {
+            grid-column: span 2;
+        }
+
+        .span-3 {
+            grid-column: span 3;
+        }
+
+        .span-6 {
+            grid-column: span 6;
+        }
+
+        .remove-btn {
+            border: none;
+            background: transparent;
+            color: #ffd1d1;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        .remove-btn:hover {
+            background: rgba(239, 68, 68, 0.18);
+            color: #fff;
+        }
+
+        /* Footer */
+        .footer-distributed {
+            background: linear-gradient(45deg, #83a4d4, #b6fbff);
+            box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
+            box-sizing: border-box;
+            width: 100%;
+            text-align: left;
+            font: bold 16px 'Open Sans', sans-serif;
+            padding: 40px 24px;
+            margin-top: 50px;
+            color: #111827;
+        }
+
+        .footer-distributed .footer-left,
+        .footer-distributed .footer-center,
+        .footer-distributed .footer-right {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .footer-distributed .footer-left {
+            width: 40%;
+        }
+
+        .footer-distributed h3 {
+            color: #111827;
+            font: normal 28px 'Open Sans', cursive;
+            margin: 0 0 8px 0;
+        }
+
+        .footer-distributed .footer-links {
+            margin: 18px 0 10px;
+            padding: 0;
+        }
+
+        .footer-distributed .footer-links a {
+            display: inline-block;
+            line-height: 1.8;
+            font-weight: 500;
+            color: #111827;
+            margin-right: 10px;
+        }
+
+        .footer-distributed .footer-company-name {
+            color: #1f2937;
+            font-size: 14px;
+            font-weight: normal;
+            margin: 8px 0 0;
+        }
+
+        .footer-distributed .footer-center {
+            width: 35%;
+        }
+
+        .footer-distributed .footer-center i {
+            background-color: #33383b;
+            color: #ffffff;
+            font-size: 18px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 34px;
+            margin: 6px 10px 6px 0;
+            vertical-align: middle;
+        }
+
+        .footer-distributed .footer-center p {
+            display: inline-block;
+            color: #111827;
+            font-weight: 500;
+            vertical-align: middle;
+            margin: 0;
+        }
+
+        .footer-distributed .footer-center p span {
+            display: block;
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #374151;
+        }
+
+        .footer-distributed .footer-center p a {
+            color: #0ea5e9;
+        }
+
+        .footer-distributed .footer-right {
+            width: 20%;
+        }
+
+        .footer-distributed .footer-company-about {
+            line-height: 20px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: normal;
+            margin: 0;
+        }
+
+        .footer-distributed .footer-company-about span {
+            display: block;
+            color: #111827;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .footer-distributed .footer-icons {
+            margin-top: 16px;
+        }
+
+        .footer-distributed .footer-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            background-color: #1f2937;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #ffffff;
+            margin-right: 6px;
+        }
+
+        /* Responsive */
+        @media (max-width: 980px) {
+            .medicine-card .mc-body {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .span-3 {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                display: block;
+            }
+
+            .navbar-menu {
+                display: none;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                width: 100%;
+            }
+
+            .navbar-menu.active {
+                display: flex !important;
+                margin-top: 8px;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+                padding-top: 8px;
+            }
+
+            .navbar-nav {
+                width: 100%;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .navbar-nav>li>a {
+                width: 100%;
+            }
+
+            .inline-row {
+                grid-template-columns: 1fr;
+            }
+
+            .add-card .header h1 {
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 880px) {
+
+            .footer-distributed .footer-left,
+            .footer-distributed .footer-center,
+            .footer-distributed .footer-right {
+                display: block;
+                width: 100%;
+                margin-bottom: 24px;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="/" class="navbar-logo">
+                    <img src="https://cdn.pixabay.com/photo/2015/12/15/23/32/universal-health-care-1095124_640.png"
+                        alt="logo">
+                    <img src="https://ik.imagekit.io/77nsbwefl/download.png?updatedAt=1755196133135" alt="logo">
+                </a>
+                <button class="navbar-toggler" data-toggle="open-navbar1" aria-label="Toggle navigation">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+
+            <div class="navbar-menu" id="open-navbar1">
+                <ul class="navbar-nav">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/add_medicine">Medicine</a></li>
+                    <li><a href="/show_details">Show Details</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+
+                <div class="user-menu-wrap">
+                    <i id="userIcon" class="fas fa-user-circle" aria-hidden="true" aria-haspopup="true"
+                        aria-expanded="false"></i>
+                    <div id="userMenu" role="menu" aria-label="User menu">
+                        <% if (loggedIn) { %>
+                            <p><a href="#">Profile</a></p>
+                            <p><a href="/logout">Logout</a></p>
+                        <% } else { %>
+                            <p><a href="/sign_in">Sign in</a></p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-container">
+        <section class="add-card container">
+            <div class="header">
+                <h1>Add Medicines</h1>
+                <p>Create one or more medicine reminders. You can set dosage, frequency, duration and start time.</p>
+            </div>
+            <div class="body">
+                <form action="/add_medicine" method="post" id="medicineForm" novalidate>
+                    <div class="inline-row">
+                        <div>
+                            <label for="number_of_medicines">Number of Medicines</label>
+                            <input type="number" min="1" id="number_of_medicines" name="n" placeholder="e.g., 1, 2, 3"
+                                required>
+                        </div>
+                        <button type="button" class="btn btn-secondary" id="generateBtn">
+                            <i class="fa-solid fa-layer-group"></i>
+                            Generate Forms
+                        </button>
+                    </div>
+
+                    <div id="medicine_forms" aria-live="polite"></div>
+
+                    <div class="actions">
+                        <a href="/" class="btn btn-secondary" title="Go Back">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Go Back
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-circle-check"></i>
+                            Add Medicine
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-distributed">
+      <div class="footer-left">
+        <a href="/" class="navbar-logo" aria-label="Home">
+          <img src="https://cdn.pixabay.com/photo/2015/12/15/23/32/universal-health-care-1095124_640.png" alt="logo">
+          <img src="https://ik.imagekit.io/77nsbwefl/download.png?updatedAt=1755196133135" alt="logo">
+        </a>
+        <p class="footer-links">
+          <a href="/" class="link-1">Home</a>
+          <a href="/add_medicine">Medicine</a>
+          <a href="/show_details">Show Details</a>
+          <a href="/about">About</a>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/contact">Contact</a>
+        </p>
+        <p class="footer-company-name" style="width: auto; color:#0d0204; font-size: 20px; font:bold; font-style:italic; ">TechFlies</p>
+      </div>
+
+      <div class="footer-center">
+        <div>
+          <i class="fa fa-map-marker"></i>
+          <p><span>P7MV+F9G, B.M Road,</span> Ghousia College of Engineering,<br> Ramanagara, Karnataka 562159</p>
+        </div>
+        <div>
+          <i class="fa fa-phone"></i>
+          <p>+91-8446548235</p>
+        </div>
+        <div>
+          <i class="fa fa-envelope"></i>
+          <p><a href="medicinereminder04@gmail.com">medicinereminder04@gmail.com</a></p>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <p class="footer-company-about">
+          <span>About the company</span>
+          Tools that help you stay on track with your health—simply and beautifully.
+        </p>
+        <div class="footer-icons">
+          <a href="#"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+          <a href="#"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+          <a href="#"><i class="fab fa-github" aria-hidden="true"></i></a>
+        </div>
+      </div>
+    </footer>
+    <script>
+        // Navbar toggler
+        document.querySelectorAll(".navbar-toggler").forEach(btn => {
+            btn.addEventListener("click", () => {
+                let navbarMenu = document.querySelector(".navbar-menu");
+                navbarMenu.classList.toggle("active");
+            });
+        });
+
+        // User menu
+        const userIcon = document.getElementById('userIcon');
+        const userMenu = document.getElementById('userMenu');
+        if (userIcon && userMenu) {
+            userIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const open = !userMenu.classList.contains('visible');
+                userMenu.classList.toggle('visible', open);
+                userIcon.setAttribute('aria-expanded', String(open));
+            });
+            document.addEventListener('click', (e) => {
+                if (!userMenu.contains(e.target)) {
+                    userMenu.classList.remove('visible');
+                    userIcon.setAttribute('aria-expanded', 'false');
+                }
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    userMenu.classList.remove('visible');
+                    userIcon.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
+        // Add medicine dynamic forms
+        const generateBtn = document.getElementById('generateBtn');
+        const numberInput = document.getElementById('number_of_medicines');
+        const formsContainer = document.getElementById('medicine_forms');
+
+        function createMedicineCard(index) {
+            const wrap = document.createElement('div');
+            wrap.className = 'medicine-card';
+            wrap.setAttribute('data-index', index);
+
+            // Head
+            const head = document.createElement('div');
+            head.className = 'mc-head';
+            head.innerHTML = `<h3>Medicine ${index + 1}</h3>`;
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Remove';
+            removeBtn.addEventListener('click', () => {
+                wrap.remove();
+                // Re-label remaining cards
+                document.querySelectorAll('.medicine-card').forEach((card, idx) => {
+                    card.querySelector('.mc-head h3').textContent = 'Medicine ' + (idx + 1);
+                });
+            });
+            head.appendChild(removeBtn);
+
+            // Body
+            const body = document.createElement('div');
+            body.className = 'mc-body';
+
+            body.innerHTML = `
+                <div class="span-3">
+                    <label for="medicine_name_${index}">Medicine Name</label>
+                    <input type="text" id="medicine_name_${index}" name="medicine_name_${index}" placeholder="e.g., Paracetamol" required>
+                </div>
+                <div class="span-3">
+                    <label for="dosage_${index}">Dosage</label>
+                    <input type="text" id="dosage_${index}" name="dosage_${index}" placeholder="e.g., 500mg" required>
+                </div>
+
+                <div class="span-2">
+                    <label for="frequency_${index}">Frequency (seconds)</label>
+                    <input type="number" id="frequency_${index}" name="frequency_${index}" min="1" placeholder="e.g., 3600" required>
+                </div>
+
+                <div class="span-2">
+                    <label for="duration_type_${index}">Duration Type</label>
+                    <select id="duration_type_${index}" name="duration_type_${index}" required>
+                        <option value="" disabled selected>Select Duration</option>
+                        <option value="daily">Daily</option>
+                        <option value="days">For Some Days</option>
+                    </select>
+                </div>
+
+                <div class="span-2" id="duration_days_wrap_${index}" style="display:none;">
+                    <label for="duration_${index}">Duration (days)</label>
+                    <input type="number" id="duration_${index}" name="duration_${index}" min="1" placeholder="e.g., 7">
+                </div>
+
+                <div class="span-3">
+                    <label for="start_date_${index}">Start Date & Time</label>
+                    <input type="datetime-local" id="start_date_${index}" name="start_date_${index}" required>
+                </div>
+
+                <div class="span-3">
+                    <label for="recipient_email_${index}">Recipient's Email</label>
+                    <input type="email" id="recipient_email_${index}" name="recipient_email_${index}" placeholder="name@example.com" required>
+                </div>
+            `;
+
+            // Toggle duration visibility
+            body.querySelector(`#duration_type_${index}`).addEventListener('change', (e) => {
+                const wrapDays = body.querySelector(`#duration_days_wrap_${index}`);
+                if (e.target.value === 'days') {
+                    wrapDays.style.display = 'block';
+                } else {
+                    wrapDays.style.display = 'none';
+                }
+            });
+
+            wrap.appendChild(head);
+            wrap.appendChild(body);
+            return wrap;
+        }
+
+        function generateMedicineForms() {
+            const n = Math.max(0, parseInt(numberInput.value, 10) || 0);
+            formsContainer.innerHTML = '';
+            if (n <= 0) return;
+            for (let i = 0; i < n; i++) {
+                const card = createMedicineCard(i);
+                formsContainer.appendChild(card);
+            }
+            // Smooth scroll to first card
+            formsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        generateBtn.addEventListener('click', generateMedicineForms);
+    </script>
+</body>
+
+</html>
