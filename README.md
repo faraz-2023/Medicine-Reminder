@@ -12,7 +12,7 @@
 📅 **Smart Scheduling** – Timers run in real time using in-memory intervals linked to MongoDB data.  
 📊 **Dashboard** – Overview of total medicines & active reminders.  
 🔐 **Session Handling** – Persistent sessions stored in MongoDB.  
-🧾 **Profile Management** – Update username, email, or password directly from the dashboard.  
+🧾 **Profile Management** – Update username, email, or password directly from the dashboard
 
 ---
 
